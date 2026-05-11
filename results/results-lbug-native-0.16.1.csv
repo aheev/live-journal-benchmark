@@ -1,0 +1,11 @@
+backend,query_id,description,avg_ms,min_ms,max_ms,result
+native,q01_count_nodes,Count all nodes,1.37,0.96,2.42,[3997962]
+native,q02_count_edges_meta,Count all edges (metadata fast path),6.6,5.54,9.25,[69362378]
+native,q03_outdeg_high,"Out-degree of high-degree node (9766, deg=14815)",6.44,5.98,7.48,[12870]
+native,q04_outdeg_med,"Out-degree of medium-degree node (3, deg=454)",6.34,5.76,7.09,[2]
+native,q05_outdeg_low,Out-degree of low-degree node (1000),6.38,5.64,6.76,[28]
+native,q06_top10_outdeg,Top-10 nodes by out-degree,320.42,296.66,347.2,"[9767, 14815]"
+native,q07_count_active_src,Count nodes with at least one out-edge,232.32,225.35,250.9,[3997962]
+native,q08_full_scan_rel,Full edge scan — count bound rel variable,89.74,82.24,102.76,[69362378]
+native,q09_full_scan_star,Full edge scan — count(*) (no rel var),5.37,4.49,6.8,[69362378]
+native,q10_outdeg_node_a,"Out-degree of second high-degree node (9765, deg≈12870)",4.76,3.98,5.63,[48]

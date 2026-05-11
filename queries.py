@@ -218,15 +218,15 @@ QUERIES = [
             "RETURN count(*) AS triangles"
         ),
     },
-    {
-        "id": "q24_global_triangles",
-        "description": "Global triangle count (all directed 3-cycles, canonical ordering)",
-        "cypher": (
-            "MATCH (a:user)-[:follows]->(b:user)-[:follows]->(c:user)-[:follows]->(a) "
-            "WHERE a.id < b.id AND b.id < c.id "
-            "RETURN count(*) AS triangles"
-        ),
-    },
+    # {
+    #     "id": "q24_global_triangles",
+    #     "description": "Global triangle count (all directed 3-cycles, canonical ordering)",
+    #     "cypher": (
+    #         "MATCH (a:user)-[:follows]->(b:user)-[:follows]->(c:user)-[:follows]->(a) "
+    #         "WHERE a.id < b.id AND b.id < c.id "
+    #         "RETURN count(*) AS triangles"
+    #     ),
+    # },
 
     # ------------------------------------------------------------------ #
     # Local clustering coefficient                                         #
