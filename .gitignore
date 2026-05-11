@@ -1,6 +1,5 @@
 __pycache__
 *.parquet
-*.csv
 *.mtx
 
 # Python bytecode and caches

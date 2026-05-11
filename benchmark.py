@@ -14,25 +14,56 @@ import sys
 import tempfile
 import time
 
-sys.path.insert(0, "/media/aheev/secondary/open-source/ladybug/ladybug/tools/python_api/build")
-import ladybug as lbug
+BASE = os.path.dirname(os.path.abspath(__file__))
+
+try:
+    import ladybug as lbug
+except ImportError:
+    _api_path = os.environ.get("LADYBUG_PYTHON_API")
+    if not _api_path:
+        print(
+            "ERROR: Could not import the 'ladybug' module.\n"
+            "Install it, or set LADYBUG_PYTHON_API to the Ladybug Python API build directory:\n\n"
+            "  export LADYBUG_PYTHON_API=/path/to/ladybug/tools/python_api/build\n"
+        )
+        sys.exit(1)
+    sys.path.insert(0, _api_path)
+    try:
+        import ladybug as lbug
+    except ImportError:
+        print(f"ERROR: Could not import 'ladybug' from LADYBUG_PYTHON_API={_api_path!r}")
+        sys.exit(1)
 
 from queries import QUERIES
 
-BASE = os.path.dirname(os.path.abspath(__file__))
 ICEBUG_SCHEMA = os.path.join(BASE, "icebug_disk", "schema.cypher")
 PARQUET_SCHEMA = os.path.join(BASE, "parquet_db", "schema.cypher")
 
+# Storage paths are computed relative to the repo root so the benchmark works
+# regardless of where it is cloned.
+ICEBUG_STORAGE = os.path.join(BASE, "icebug_disk")
+PARQUET_STORAGE = os.path.join(BASE, "parquet_db", "lj")
 
-def setup_db(schema_path: str, db_path: str) -> lbug.Connection:
+_VALID_BACKENDS = {"icebug", "parquet"}
+_BACKEND_SCHEMA = {"icebug": ICEBUG_SCHEMA, "parquet": PARQUET_SCHEMA}
+_BACKEND_STORAGE = {"icebug": ICEBUG_STORAGE, "parquet": PARQUET_STORAGE}
+
+
+def setup_db(schema_path: str, db_path: str, storage_path: str) -> lbug.Connection:
     db = lbug.Database(db_path)
     conn = lbug.Connection(db)
     with open(schema_path) as f:
-        schema = f.read()
+        schema = f.read().replace("__STORAGE_PATH__", storage_path)
     for stmt in schema.strip().split(";"):
         s = stmt.strip()
-        if s:
+        if not s:
+            continue
+        try:
             conn.execute(s)
+        except Exception as e:
+            # Non-fatal: extension installation may fail if already installed
+            # or if the extension server version doesn't match. Log and continue.
+            print(f"  SETUP WARNING: {e!s:.120}")
     return conn
 
 
@@ -144,6 +175,9 @@ def main() -> None:
     args = parser.parse_args()
 
     backends = [b.strip() for b in args.backends.split(",")]
+    unknown = [b for b in backends if b not in _VALID_BACKENDS]
+    if unknown:
+        parser.error(f"Unknown backend(s): {', '.join(unknown)!r}. Valid options: {', '.join(sorted(_VALID_BACKENDS))}")
 
     all_records: list[dict] = []
 
@@ -152,8 +186,7 @@ def main() -> None:
         try:
             print(f"\n{'='*60}")
             print(f"Setting up backend: {backend}")
-            schema = ICEBUG_SCHEMA if backend == "icebug" else PARQUET_SCHEMA
-            conn = setup_db(schema, db_path)
+            conn = setup_db(_BACKEND_SCHEMA[backend], db_path, _BACKEND_STORAGE[backend])
             print(f"Running {args.warmup} warmup + {args.runs} timed runs per query...")
             records = benchmark(conn, backend, args.warmup, args.runs)
             all_records.extend(records)

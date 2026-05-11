@@ -32,21 +32,23 @@ The query set includes:
 ## Prerequisites
 
 1. Python 3.10+ (or any recent Python 3 version with typing support used here).
-2. A built Ladybug Python API module (`ladybug`) available at the path hardcoded in `benchmark.py`:
+2. The Ladybug Python API module (`ladybug`) must be importable. If it is not installed as a
+   package, set the `LADYBUG_PYTHON_API` environment variable to the build directory:
 
-	`/media/aheev/secondary/open-source/ladybug/ladybug/tools/python_api/build`
+	```bash
+	export LADYBUG_PYTHON_API=/path/to/ladybug/tools/python_api/build
+	```
 
-3. LiveJournal data available where the schema files point:
+3. LiveJournal data files (`.parquet`) placed in the correct directories relative to the repo
+   root (they are git-ignored and must be obtained separately):
 
-	- `icebug_disk/schema.cypher` uses:
-	  `/media/aheev/secondary/open-source/ladybug/benchmarks/live-journal-benchmark/icebug_disk`
-	- `parquet_db/schema.cypher` uses:
-	  `/media/aheev/secondary/open-source/ladybug/benchmarks/live-journal-benchmark/parquet_db/lj`
+	- `icebug_disk/` — icebug-disk storage files (`nodes_user.parquet`, `indices_follows.parquet`,
+	  `indptr_follows.parquet`)
+	- `parquet_db/` — parquet storage files with the `lj_` prefix (`lj_nodes_user.parquet`,
+	  `lj_indices_follows.parquet`, `lj_indptr_follows.parquet`)
 
-If you move this repo, update paths in:
-
-- `benchmark.py` (`sys.path.insert(...)`)
-- both `schema.cypher` files (`WITH (storage = '...')`)
+All data and schema paths are resolved relative to the repo root at runtime — no hardcoded
+absolute paths.
 
 ## Usage
 
