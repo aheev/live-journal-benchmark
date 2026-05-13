@@ -218,15 +218,15 @@ QUERIES = [
             "RETURN count(*) AS triangles"
         ),
     },
-    # {
-    #     "id": "q24_global_triangles",
-    #     "description": "Global triangle count (all directed 3-cycles, canonical ordering)",
-    #     "cypher": (
-    #         "MATCH (a:user)-[:follows]->(b:user)-[:follows]->(c:user)-[:follows]->(a) "
-    #         "WHERE a.id < b.id AND b.id < c.id "
-    #         "RETURN count(*) AS triangles"
-    #     ),
-    # },
+    {
+        "id": "q24_global_triangles",
+        "description": "Global triangle count (all directed 3-cycles, canonical ordering)",
+        "cypher": (
+            "MATCH (a:user)-[:follows]->(b:user)-[:follows]->(c:user)-[:follows]->(a) "
+            "WHERE a.id < b.id AND b.id < c.id "
+            "RETURN count(*) AS triangles"
+        ),
+    },
 
     # ------------------------------------------------------------------ #
     # Local clustering coefficient                                         #
@@ -340,17 +340,16 @@ QUERIES = [
     # Σ 1/log(|N(c)|) over common neighbours c — outperforms Jaccard    #
     # on LiveJournal in the original Liben-Nowell 2003 paper.            #
     # ------------------------------------------------------------------ #
-    # disabled for now as it takes longer to run than expected
-    # {
-    #     "id": "q32_adamic_adar",
-    #     "description": f"Adamic-Adar link-prediction score between {HIGH_DEG_NODE} and {NODE_A}",
-    #     "cypher": (
-    #         f"MATCH (a:user {{id: {HIGH_DEG_NODE}}})-[:follows]->(c)<-[:follows]-(b:user {{id: {NODE_A}}}) "
-    #         "MATCH (x)-[:follows]->(c) "
-    #         "WITH c, count(x) AS indeg "
-    #         "RETURN sum(1.0 / log(indeg)) AS adamic_adar_score"
-    #     ),
-    # },
+    {
+        "id": "q32_adamic_adar",
+        "description": f"Adamic-Adar link-prediction score between {HIGH_DEG_NODE} and {NODE_A}",
+        "cypher": (
+            f"MATCH (a:user {{id: {HIGH_DEG_NODE}}})-[:follows]->(c)<-[:follows]-(b:user {{id: {NODE_A}}}) "
+            "MATCH (x)-[:follows]->(c) "
+            "WITH c, count(x) AS indeg "
+            "RETURN sum(1.0 / log(indeg)) AS adamic_adar_score"
+        ),
+    },
 
     # ------------------------------------------------------------------ #
     # Structural degree queries                                            #
